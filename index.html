@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi App de Música</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body { font-family: sans-serif; padding: 20px; text-align: center; background: #f5f5f5; }
+    input, button { margin: 5px; padding: 10px; }
+    audio { width: 100%; margin-top: 10px; }
+    ul { list-style: none; padding: 0; }
+    li { background: white; margin: 5px; padding: 10px; border-radius: 5px; cursor: pointer; }
+    li:hover { background: #e0e0e0; }
+  </style>
+</head>
+<body>
+
+  <h1>🎵 Mi App de Música</h1>
+
+  <input type="file" id="fileInput" accept="audio/*" multiple>
+  <input type="text" id="urlInput" placeholder="Pega una URL de audio">
+  <button onclick="addUrl()">Agregar URL</button>
+
+  <ul id="playlist"></ul>
+  <audio id="player" controls></audio>
+
+  <script>
+    const playlist = [];
+    const playlistEl = document.getElementById('playlist');
+    const player = document.getElementById('player');
+
+    document.getElementById('fileInput').addEventListener('change', e => {
+      for (let file of e.target.files) {
+        const url = URL.createObjectURL(file);
+        playlist.push({ name: file.name, url });
+      }
+      renderPlaylist();
+    });
+
+    function addUrl() {
+      const url = document.getElementById('urlInput').value;
+      if (url) {
+        playlist.push({ name: url, url });
+        document.getElementById('urlInput').value = '';
+        renderPlaylist();
+      }
+    }
+
+    function playSong(index) {
+      player.src = playlist[index].url;
+      player.play();
+    }
+
+    function renderPlaylist() {
+      playlistEl.innerHTML = '';
+      playlist.forEach((song, index) => {
+        const li = document.createElement('li');
+        li.textContent = song.name;
+        li.onclick = () => playSong(index);
+        playlistEl.appendChild(li);
+      });
+    }
+
+    // Registrar Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>
